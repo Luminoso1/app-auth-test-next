@@ -3,6 +3,7 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
+import toast from "react-hot-toast";
 
 export default function SignInPage() {
   const router = useRouter()
@@ -27,10 +28,12 @@ export default function SignInPage() {
 
     try {
       setIsLoading(true);
-      const response = await axios.post("/api/signin", user);
+      const response = await axios.post("/api/sign-in", user);
       console.log("Sign In succes", response.data);
+      toast.success("Sign In Successfully");
       router.push("/home");
     } catch (error) {
+      toast.error("Error");
       console.log(error.message);
     } finally {
       setIsLoading(false);

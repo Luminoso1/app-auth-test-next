@@ -3,6 +3,7 @@ import User from "@/models/user";
 import bcryptjs from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { SignJWT } from "jose";
 
 connection();
 
@@ -34,9 +35,19 @@ export async function POST(request) {
     email: user.email,
   };
 
-  const token = await jwt.sign(tokenData, process.env.SECRET_TOKEN, {
-    expiresIn: "8h",
-  });
+  // using jsonwebtoken
+  // const token = await jwt.sign(tokenData, process.env.SECRET_TOKEN, {
+  //   expiresIn: "8h",
+  // });
+
+  const token = await new SignJWT(tokenData)
+    .setProtectedHeader({ alg: "HS256", typ: "JWT" })
+    .setIssuedAt()
+    .setExpirationTime('2h')
+    .sign(new TextEncoder().encode(process.env.SECRET_TOKEN));
+  console.log(token);
+
+  // using jose
 
   const response = NextResponse.json({
     message: "Sign In Successfull",
@@ -45,7 +56,6 @@ export async function POST(request) {
 
   response.cookies.set("session", token, {
     httpOnly: true,
-    
   });
 
   return response;
