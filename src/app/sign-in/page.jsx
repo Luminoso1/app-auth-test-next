@@ -4,31 +4,29 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import toast from "react-hot-toast";
+import { useForm } from "react-hook-form";
+import CustomForm from "../components/CustomForm";
+import CustomButton from "../components/CustomButton";
+import { SignInSchema } from "@/lib/forms";
 
 export default function SignInPage() {
-  const router = useRouter()
-  const [user, setUser] = React.useState({
-    username: "",
-    password: "",
-  });
+  const router = useRouter();
 
-  const [isDisable, setIsDisable] = React.useState(true);
+  const methods = useForm();
+
+  // TODO: Enhamce the code repetition ➡️ to handle states sign-in and sign-up pages
+
+  // TODO: diable button when there are errors
+
+  const [isDisable, setIsDisable] = React.useState(false);
+
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUser({
-      ...user,
-      [name]: value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = methods.handleSubmit(async (data) => {
+    // console.log(data);
     try {
       setIsLoading(true);
-      const response = await axios.post("/api/sign-in", user);
+      const response = await axios.post("/api/sign-in", data);
       console.log("Sign In succes", response.data);
       toast.success("Sign In Successfully");
       router.push("/home");
@@ -38,15 +36,7 @@ export default function SignInPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  React.useEffect(() => {
-    if (user.username.length > 0 && user.password.length > 0) {
-      setIsDisable(false);
-    } else {
-      setIsDisable(true);
-    }
-  }, [user]);
+  });
   return (
     <div>
       <Link
@@ -58,50 +48,15 @@ export default function SignInPage() {
 
       <h1 className="my-10 text-4xl text-center">Sign In</h1>
 
-      <form
-        className="flex flex-col gap-6 [&>input]:py-4 [&>input]:px-4 [&>input]:rounded-md [&>input]:bg-slate-50"
-        noValidate
-        onSubmit={handleSubmit}
-      >
-        <input
-          type="text"
-          id="username"
-          name="username"
-          placeholder="username"
-          value={user.username}
-          onChange={handleChange}
-        />
-        <input
-          type="password"
-          id="password"
-          name="password"
-          placeholder="password"
-          value={user.password}
-          onChange={handleChange}
-        />
-        <button
-          type="submit"
-          className="bg-red-400 text-white font-semibold rounded-lg py-4
-        disabled:bg-slate-200 disabled:cursor-not-allowed
-          flex items-center justify-center gap-4 "
-          placeholder="Submit"
-          disabled={isDisable}
+      <CustomForm methods={methods} onSubmit={onSubmit} schema={SignInSchema}>
+        <CustomButton
+          onSubmit={onSubmit}
+          isLoading={isLoading}
+          isDisable={isDisable}
         >
-          {isLoading && (
-            <div
-              className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid 
-            border-current border-e-transparent align-[-0.125em] text-surface 
-            motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
-            >
-              <span
-                className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap 
-              !border-0 !p-0 ![clip:rect(0,0,0,0)]"
-              ></span>
-            </div>
-          )}
-          {isLoading ? "Proccesing" : "Submit"}
-        </button>
-      </form>
+          Sign in
+        </CustomButton>
+      </CustomForm>
     </div>
   );
 }
