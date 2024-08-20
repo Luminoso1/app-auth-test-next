@@ -8,13 +8,16 @@ connection();
 export async function POST(request) {
   new Promise((resolve) => setTimeout(resolve, 2000));
 
+  // console.log(request);
+
   try {
     const requestBody = await request.json();
     const { username, email, password } = requestBody;
-    console.log(requestBody);
+    console.log("request body: ", requestBody);
 
     // user exists?
     const user = await User.findOne({ email });
+
     if (user) {
       return NextResponse.json(
         { error: "User already exist" },
@@ -40,6 +43,7 @@ export async function POST(request) {
       savedUser,
     });
   } catch (error) {
+    console.error("Error: ", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

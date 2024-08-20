@@ -17,13 +17,13 @@ export async function POST(request) {
   // user exists?
   const user = await User.findOne({ username });
   if (!user) {
-    return NextResponse.json({ error: "User does not exist" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
   }
 
   // password is correct
   const isPasswordValid = await bcryptjs.compare(password, user.password);
   if (!isPasswordValid) {
-    return NextResponse.json({ error: "Invalid" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
   }
 
   // generate and set token
@@ -42,7 +42,7 @@ export async function POST(request) {
   const token = await new SignJWT(tokenData)
     .setProtectedHeader({ alg: "HS256", typ: "JWT" })
     .setIssuedAt()
-    .setExpirationTime('2h')
+    .setExpirationTime("2h")
     .sign(new TextEncoder().encode(process.env.SECRET_TOKEN));
   console.log(token);
 
